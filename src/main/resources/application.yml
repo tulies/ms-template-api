@@ -1,0 +1,47 @@
+server:
+  port: 9191
+  servlet:
+    context-path: /
+#    context-path: /blog-ms-server
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: ms-template-api
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+#    default-property-inclusion: non_null
+    time-zone: GMT+8
+
+  #切面设置
+#  aop:
+#    proxy-target-class: true
+#    auto: true
+#  cache:
+#    type: redis
+
+logging:
+  level:
+    org.springframework.web: info
+    cn.binarywang.wx.miniapp: debug
+    com.github.binarywang.wxpay: debug
+wx:
+  miniapp:
+    configs:
+      - appid: wx7f344775470bf3a2
+        secret: da9db4bff3a730a1219dde4e1a06f6ad
+        #微信小程序消息服务器配置的token
+        token: 212121
+        #微信小程序消息服务器配置的EncodingAESKey
+        aesKey: 1212121
+        msgDataFormat: JSON
+  pay:
+      appId: wx7f344775470bf3a2
+      #微信支付商户号
+      mchId: 1323837201
+      #微信支付商户密钥
+      mchKey: 91c6e855c2d1c31f53c04217ea4f2cdb
+      subAppId: #服务商模式下的子商户公众账号ID
+      subMchId: #服务商模式下的子商户号
+      keyPath: # p12证书的位置，可以指定绝对路径，也可以指定类路径（以classpath:开头）
