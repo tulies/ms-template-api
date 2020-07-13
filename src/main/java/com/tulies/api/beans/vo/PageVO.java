@@ -1,4 +1,4 @@
-package com.tulies.api.vo;
+package com.tulies.blog.vo;
 
 import lombok.Data;
 
