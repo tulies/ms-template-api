@@ -1,10 +1,10 @@
 package com.tulies.api.handler;
 
 
+import com.tulies.api.beans.vo.ResultVO;
 import com.tulies.api.enums.ResultEnum;
 import com.tulies.api.exception.AppException;
 import com.tulies.api.utils.ResultVOUtil;
-import com.tulies.api.vo.ResultVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;

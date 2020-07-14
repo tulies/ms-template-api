@@ -1,8 +1,8 @@
 package com.tulies.api.utils;
 
 
+import com.tulies.api.beans.vo.ResultVO;
 import com.tulies.api.enums.ResultEnum;
-import com.tulies.api.vo.ResultVO;
 
 /**
  * @author 王嘉炀

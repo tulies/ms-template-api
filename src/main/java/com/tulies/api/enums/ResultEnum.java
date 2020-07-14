@@ -24,10 +24,6 @@ public enum ResultEnum {
     ACCOUNT_PASSWORD_MISMATCH(5102, "账号密码不匹配"),
     ILLEGAL_OPERATION(5103, "非法操作"),
 
-    // 微信接口相关异常
-    WX_Ma_ERROR(1001, "微信小程序服务异常，WX_Ma_ERROR"),
-    WX_Ma_CODE2SESSION(1002, "微信小程序登录异常，WX_Ma_CODE2SESSION"),
-    WX_PAY_UNIFIEDORDER(1003, "微信支付统一下单异常，WX_PAY_UNIFIEDORDER"),
     ;
 
     private Integer code;

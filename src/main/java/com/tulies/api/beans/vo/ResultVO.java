@@ -1,10 +1,10 @@
-package com.tulies.blog.vo;
+package com.tulies.api.beans.vo;
 
 import lombok.Data;
 
 /**
  * @author 王嘉炀
- * @date 2019/8/19 下午1:29
+ * @date 2020/7/13 下午1:29
  */
 @Data
 public class ResultVO<T> {

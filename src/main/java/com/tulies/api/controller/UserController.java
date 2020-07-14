@@ -1,18 +1,23 @@
-package com.tulies.blog.controller;
+package com.tulies.api.controller;
 
-import com.tulies.blog.dto.UserDTO;
-import com.tulies.blog.entity.User;
-import com.tulies.blog.enums.ResultEnum;
-import com.tulies.blog.exception.AppException;
-import com.tulies.blog.qo.UserQO;
-import com.tulies.blog.service.UserService;
-import com.tulies.blog.utils.ResultVOUtil;
-import com.tulies.blog.vo.PageVO;
-import com.tulies.blog.vo.ResultVO;
+import com.tulies.api.beans.dto.UserDTO;
+import com.tulies.api.beans.form.UserCreateForm;
+import com.tulies.api.beans.form.UserUpdateForm;
+import com.tulies.api.beans.qo.UserQO;
+import com.tulies.api.beans.vo.PageVO;
+import com.tulies.api.beans.vo.ResultVO;
+import com.tulies.api.entity.User;
+import com.tulies.api.enums.ResultEnum;
+import com.tulies.api.exception.AppException;
+import com.tulies.api.service.UserService;
+import com.tulies.api.utils.ResultVOUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * @author 王嘉炀
@@ -34,10 +39,11 @@ public class UserController {
         return ResultVOUtil.success(pageVO);
     }
 
+
+
     @PostMapping("/delete")
     public ResultVO delete(@RequestBody UserQO userQO){
         if(userQO.getId() == null ){
-//            log.error("【删除活动记录】参数不正确，actRecordVO={}", actRecordVO);
             throw new AppException(ResultEnum.PARAM_ERROR.getCode(),
                     ResultEnum.PARAM_ERROR.getMessage()+",缺少id参数");
         }
@@ -60,7 +66,6 @@ public class UserController {
                     ResultEnum.PARAM_ERROR.getMessage()+",缺少id或status参数");
         }
 
-        // 先查询下当前这个活动信息，判断下状态，是否是可以删除的情况。
         User user = userService.findById(userQO.getId());
         if (user == null) {
             throw new AppException(ResultEnum.DATA_NOT_EXIT);
@@ -79,4 +84,39 @@ public class UserController {
     }
 
 
+    @PostMapping("/create")
+    public ResultVO create(@RequestBody @Valid UserCreateForm userForm, BindingResult bindingResult){
+        if (bindingResult.hasErrors()) {
+            log.error("【创建】参数不正确，userForm={}", userForm);
+            throw new AppException(ResultEnum.PARAM_ERROR.getCode(),
+                bindingResult.getFieldError().getDefaultMessage());
+        }
+        User create = userService.create(userForm);
+        return ResultVOUtil.success(create);
+
+    }
+
+    @PostMapping("/update")
+    public ResultVO update(@RequestBody @Valid UserUpdateForm userForm, BindingResult bindingResult){
+        if (bindingResult.hasErrors()) {
+            log.error("【更新】参数不正确，userForm={}", userForm);
+            throw new AppException(ResultEnum.PARAM_ERROR.getCode(),
+                bindingResult.getFieldError().getDefaultMessage());
+        }
+        if(userForm.getId() == null){
+            throw new AppException(ResultEnum.PARAM_ERROR.getCode(), "缺少参数，ID必传");
+        }
+        User update = userService.update(userForm);
+        return ResultVOUtil.success(update);
+    }
+//
+//    @GetMapping("/info/{id}")
+//    public ResultVO info(@PathVariable(name = "id") Integer id){
+//
+//        ArticleDTO articleDTO = this.articleService.findByIdWithExt(id);
+//        if(articleDTO == null){
+//            throw new AppException(ResultEnum.DATA_NOT_EXIT.getCode(), ResultEnum.DATA_NOT_EXIT.getMessage());
+//        }
+//        return ResultVOUtil.success(articleDTO);
+//    }
 }

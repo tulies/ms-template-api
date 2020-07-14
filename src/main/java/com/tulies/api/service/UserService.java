@@ -1,9 +1,12 @@
-package com.tulies.blog.service;
+package com.tulies.api.service;
 
-import com.tulies.blog.dto.UserDTO;
-import com.tulies.blog.entity.User;
-import com.tulies.blog.qo.UserQO;
-import com.tulies.blog.vo.PageVO;
+
+import com.tulies.api.beans.dto.UserDTO;
+import com.tulies.api.beans.form.UserCreateForm;
+import com.tulies.api.beans.form.UserUpdateForm;
+import com.tulies.api.beans.qo.UserQO;
+import com.tulies.api.beans.vo.PageVO;
+import com.tulies.api.entity.User;
 
 /**
  * @author 王嘉炀
@@ -18,4 +21,8 @@ public interface UserService {
     UserDTO login(UserQO userQO);
     UserDTO findByUserToken(String userToken);
 
+    // 新增
+    User create(UserCreateForm userForm);
+
+    User update(UserUpdateForm userForm);
 }

@@ -1,17 +1,21 @@
-package com.tulies.blog.service.impl;
+package com.tulies.api.service.impl;
 
-import com.tulies.blog.config.constant.CookieConstant;
-import com.tulies.blog.config.constant.RedisConstant;
-import com.tulies.blog.converter.PageResultConverter;
-import com.tulies.blog.dto.UserDTO;
-import com.tulies.blog.entity.User;
-import com.tulies.blog.utils.*;
-import com.tulies.blog.enums.ResultEnum;
-import com.tulies.blog.exception.AppException;
-import com.tulies.blog.qo.UserQO;
-import com.tulies.blog.repository.UserRepository;
-import com.tulies.blog.service.UserService;
-import com.tulies.blog.vo.PageVO;
+import com.tulies.api.beans.dto.UserDTO;
+import com.tulies.api.beans.form.UserCreateForm;
+import com.tulies.api.beans.form.UserUpdateForm;
+import com.tulies.api.beans.qo.UserQO;
+import com.tulies.api.beans.vo.PageVO;
+import com.tulies.api.config.RedisConstant;
+import com.tulies.api.entity.User;
+import com.tulies.api.enums.CommEnum;
+import com.tulies.api.enums.ResultEnum;
+import com.tulies.api.exception.AppException;
+import com.tulies.api.repository.UserRepository;
+import com.tulies.api.service.UserService;
+import com.tulies.api.utils.CommUtil;
+import com.tulies.api.utils.KeyUtil;
+import com.tulies.api.utils.MD5Util;
+import com.tulies.api.utils.RedisUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -100,8 +105,8 @@ public class UserServiceImpl implements UserService {
                 predicateList.add(criteriaBuilder.equal(root.get("username").as(String.class), userQO.getUsername()));
             }
             //根据nuckname 模糊匹配
-            if (StringUtils.isNotBlank(userQO.getNickname())) {
-                predicateList.add(criteriaBuilder.like(root.get("nickname").as(String.class), "%"+ userQO.getNickname()+"%"));
+            if (StringUtils.isNotBlank(userQO.getAlias())) {
+                predicateList.add(criteriaBuilder.like(root.get("nickname").as(String.class), "%"+ userQO.getAlias()+"%"));
             }
 
             // 根据状态查询
@@ -126,10 +131,15 @@ public class UserServiceImpl implements UserService {
         };
 
         Page<User> page = userRepository.findAll(specification,pageable);
-        PageVO<User> pageVO = PageResultConverter.convert(page);
+        PageVO<User> pageVO = PageVO.convert(page);
         return pageVO;
     }
 
+    /**
+     * 这里注意，密码传进来的时候，就需要保证已经做过一次md5加密了。
+     * @param userQO
+     * @return
+     */
     @Override
     public UserDTO login(UserQO userQO) {
         UserQO uo = new UserQO();
@@ -143,9 +153,9 @@ public class UserServiceImpl implements UserService {
             throw new AppException(ResultEnum.ACCOUNT_PASSWORD_MISMATCH);
         }
         // 未授权，非法操作
-        if(user.getAdmin() == null ||user.getAdmin() != 1){
-            throw new AppException(ResultEnum.ILLEGAL_OPERATION.getCode(),"非法操作，管理员并未授权，请联系管理员");
-        }
+//        if(user.getAdmin() == null ||user.getAdmin() != 1){
+//            throw new AppException(ResultEnum.ILLEGAL_OPERATION.getCode(),"非法操作，管理员并未授权，请联系管理员");
+//        }
 
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
@@ -177,5 +187,36 @@ public class UserServiceImpl implements UserService {
         // cookie中缓存token
 //        CookeUtil.set(response, CookieConstant.USER_TOKEN, userToken,-1);
         return userDTO;
+    }
+
+    @Override
+    public User create(UserCreateForm userForm) {
+        // 新增文章基础信息
+        User user = new User();
+        BeanUtils.copyProperties(userForm, user);
+        Date nowDate = new Date();
+        user.setCreateTime(nowDate);
+        user.setUpdateTime(nowDate);
+        // 密码生成
+        String password = MD5Util.md5(MD5Util.md5(user.getPassword())+user.getSalt());
+        user.setPassword(password);
+        user.setStatus(CommEnum.STATUS_NEW_BUILD.getCode());
+        User userResult = userRepository.save(user);
+        return userResult;
+    }
+
+    @Override
+    public User update(UserUpdateForm userForm) {
+        // 先根据id查到对象信息
+        User user = this.findById(userForm.getId());
+        // 下面几个受保护的属性 不允许随便修改
+        userForm.setUid(user.getUid());
+        userForm.setUid(user.getUid());
+        // 覆盖属性
+        BeanUtils.copyProperties(userForm, user);
+        Date nowDate = new Date();
+        user.setUpdateTime(nowDate);
+        User userResult = userRepository.save(user);
+        return userResult;
     }
 }

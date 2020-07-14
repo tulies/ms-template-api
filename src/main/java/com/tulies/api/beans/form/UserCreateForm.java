@@ -9,7 +9,7 @@ import javax.validation.constraints.NotBlank;
  * @date 2020/7/13 6:28 下午
  */
 @Data
-public class UserForm {
+public class UserCreateForm {
     private Integer id;
     @NotBlank
     private String uid;

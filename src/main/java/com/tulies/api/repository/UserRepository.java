@@ -1,6 +1,6 @@
-package com.tulies.blog.repository;
+package com.tulies.api.repository;
 
-import com.tulies.blog.entity.User;
+import com.tulies.api.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;

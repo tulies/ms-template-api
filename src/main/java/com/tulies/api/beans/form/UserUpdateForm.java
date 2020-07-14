@@ -9,15 +9,10 @@ import javax.validation.constraints.NotBlank;
  * @date 2020/7/13 6:28 下午
  */
 @Data
-public class UserForm {
+public class UserUpdateForm {
     private Integer id;
-    @NotBlank
     private String uid;
-    @NotBlank
     private String alias;
-    @NotBlank
     private String username;
-    private String password;
-    private String salt;
     private Integer status;
 }

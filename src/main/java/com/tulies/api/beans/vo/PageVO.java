@@ -1,12 +1,13 @@
-package com.tulies.blog.vo;
+package com.tulies.api.beans.vo;
 
 import lombok.Data;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
 /**
  * @author 王嘉炀
- * @date 2018/8/19 上午10:44
+ * @date 2020/7/13 下午1:29
  */
 
 @Data
@@ -17,4 +18,12 @@ public class PageVO<T> {
     private Integer pageSize;
     private Long total;
 
+    public static PageVO convert(Page page){
+        PageVO pageVO = new PageVO();
+        pageVO.setPageNum(page.getPageable().getPageNumber());
+        pageVO.setPageSize(page.getPageable().getPageSize());
+        pageVO.setTotal(page.getTotalElements());
+        pageVO.setList(page.getContent());
+        return pageVO;
+    }
 }
