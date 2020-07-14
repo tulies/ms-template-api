@@ -1,8 +1,9 @@
 package com.tulies.api.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -11,6 +12,8 @@ import java.util.Date;
  * @author 王嘉炀
  * @date 2019-10-13 14:30
  */
+@DynamicUpdate
+@DynamicInsert
 @Data
 @Entity
 @Table(name = "sso_user")

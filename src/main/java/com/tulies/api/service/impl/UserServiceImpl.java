@@ -12,13 +12,9 @@ import com.tulies.api.enums.ResultEnum;
 import com.tulies.api.exception.AppException;
 import com.tulies.api.repository.UserRepository;
 import com.tulies.api.service.UserService;
-import com.tulies.api.utils.CommUtil;
-import com.tulies.api.utils.KeyUtil;
-import com.tulies.api.utils.MD5Util;
-import com.tulies.api.utils.RedisUtil;
+import com.tulies.api.utils.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -158,7 +154,7 @@ public class UserServiceImpl implements UserService {
 //        }
 
         UserDTO userDTO = new UserDTO();
-        BeanUtils.copyProperties(user, userDTO);
+        BeanUtil.copyProperties(user, userDTO);
 
         String userToken = KeyUtil.genUserToken();
 
@@ -190,10 +186,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User create(UserCreateForm userForm) {
-        // 新增文章基础信息
         User user = new User();
-        BeanUtils.copyProperties(userForm, user);
+        BeanUtil.copyProperties(userForm, user);
         Date nowDate = new Date();
         user.setCreateTime(nowDate);
         user.setUpdateTime(nowDate);
@@ -206,14 +202,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User update(UserUpdateForm userForm) {
         // 先根据id查到对象信息
         User user = this.findById(userForm.getId());
-        // 下面几个受保护的属性 不允许随便修改
-        userForm.setUid(user.getUid());
-        userForm.setUid(user.getUid());
         // 覆盖属性
-        BeanUtils.copyProperties(userForm, user);
+        BeanUtil.copyProperties(userForm, user, new String[]{"id","uid","password","salt"});
         Date nowDate = new Date();
         user.setUpdateTime(nowDate);
         User userResult = userRepository.save(user);
