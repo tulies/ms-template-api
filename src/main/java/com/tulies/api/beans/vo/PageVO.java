@@ -20,7 +20,7 @@ public class PageVO<T> {
 
     public static PageVO convert(Page page){
         PageVO pageVO = new PageVO();
-        pageVO.setPageNum(page.getPageable().getPageNumber());
+        pageVO.setPageNum(page.getPageable().getPageNumber()+1);
         pageVO.setPageSize(page.getPageable().getPageSize());
         pageVO.setTotal(page.getTotalElements());
         pageVO.setList(page.getContent());

@@ -31,11 +31,11 @@ public class UserController {
     @Autowired
     private UserService userService;
     @GetMapping("/list")
-    public ResultVO list(@RequestParam(value = "pageNum", defaultValue = "0") Integer pageNum,
+    public ResultVO list(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                          @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize,
                          UserQO userQO,
                          String sorter){
-        PageVO<User> pageVO = this.userService.findList(pageNum , pageSize, userQO, sorter);
+        PageVO<User> pageVO = this.userService.findList(pageNum-1 , pageSize, userQO, sorter);
         return ResultVOUtil.success(pageVO);
     }
 
