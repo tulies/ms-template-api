@@ -10,9 +10,6 @@ import javax.validation.constraints.NotBlank;
  */
 @Data
 public class UserCreateForm {
-    private Integer id;
-    @NotBlank
-    private String uid;
     @NotBlank
     private String alias;
     @NotBlank

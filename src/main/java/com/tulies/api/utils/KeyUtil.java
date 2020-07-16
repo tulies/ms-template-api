@@ -1,5 +1,6 @@
 package com.tulies.api.utils;
 
+import java.util.Date;
 import java.util.Random;
 
 /**
@@ -21,9 +22,11 @@ public class KeyUtil {
     }
 
     public static synchronized String genUid() {
-        Random random = new Random();
-        Integer number = random.nextInt(900000000) + 100000000;
-        return '1'+String.valueOf(number);
+
+//        Random random = new Random();
+//        Integer number = random.nextInt(900000000) + 100000000;
+
+        return "1"+String.valueOf(new Date().getTime());
     }
 
 }

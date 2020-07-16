@@ -190,12 +190,17 @@ public class UserServiceImpl implements UserService {
     public User create(UserCreateForm userForm) {
         User user = new User();
         BeanUtil.copyProperties(userForm, user);
+        user.setUid(KeyUtil.genUid());
         Date nowDate = new Date();
         user.setCreateTime(nowDate);
         user.setUpdateTime(nowDate);
+
         // 密码生成
-        String password = MD5Util.md5(MD5Util.md5(user.getPassword())+user.getSalt());
+        String salt = MD5Util.md5(String.valueOf(new Date().getTime()));
+        String password = MD5Util.md5(MD5Util.md5(user.getPassword())+salt);
+        user.setSalt(salt);
         user.setPassword(password);
+
         user.setStatus(CommEnum.STATUS_NEW_BUILD.getCode());
         User userResult = userRepository.save(user);
         return userResult;
