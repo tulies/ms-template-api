@@ -109,13 +109,13 @@ public class UserController {
         return ResultVOUtil.success(update);
     }
 //
-//    @GetMapping("/info/{id}")
-//    public ResultVO info(@PathVariable(name = "id") Integer id){
-//
-//        ArticleDTO articleDTO = this.articleService.findByIdWithExt(id);
-//        if(articleDTO == null){
-//            throw new AppException(ResultEnum.DATA_NOT_EXIT.getCode(), ResultEnum.DATA_NOT_EXIT.getMessage());
-//        }
-//        return ResultVOUtil.success(articleDTO);
-//    }
+    @GetMapping("/info/{id}")
+    public ResultVO info(@PathVariable(name = "id") Integer id){
+
+        User user = this.userService.findById(id);
+        if(user == null){
+            throw new AppException(ResultEnum.DATA_NOT_EXIT.getCode(), ResultEnum.DATA_NOT_EXIT.getMessage());
+        }
+        return ResultVOUtil.success(user);
+    }
 }

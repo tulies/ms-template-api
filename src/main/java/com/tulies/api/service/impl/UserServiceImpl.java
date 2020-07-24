@@ -145,7 +145,7 @@ public class UserServiceImpl implements UserService {
             throw new AppException(ResultEnum.USER_NOT_EXIST);
         }
         User user = userPageVO.getList().get(0);
-        if(!MD5Util.md5(userQO.getPassword()+user.getSalt()).equals( user.getPassword())){
+        if(!MD5Util.md5(MD5Util.md5(userQO.getPassword())+user.getSalt()).equals( user.getPassword())){
             throw new AppException(ResultEnum.ACCOUNT_PASSWORD_MISMATCH);
         }
         // 未授权，非法操作
