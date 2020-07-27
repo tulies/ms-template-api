@@ -102,7 +102,7 @@ public class UserServiceImpl implements UserService {
             }
             //根据nuckname 模糊匹配
             if (StringUtils.isNotBlank(userQO.getAlias())) {
-                predicateList.add(criteriaBuilder.like(root.get("nickname").as(String.class), "%"+ userQO.getAlias()+"%"));
+                predicateList.add(criteriaBuilder.like(root.get("alias").as(String.class), "%"+ userQO.getAlias()+"%"));
             }
 
             // 根据状态查询
