@@ -47,6 +47,9 @@ public class UserController {
             throw new AppException(ResultEnum.PARAM_ERROR.getCode(),
                     ResultEnum.PARAM_ERROR.getMessage()+",缺少id参数");
         }
+        if(userQO.getId() == 1 ){
+            throw new AppException(ResultEnum.ILLEGAL_OPERATION);
+        }
         // 先查询下当前这个活动信息
         User record = userService.findById(userQO.getId());
         if (record == null) {
