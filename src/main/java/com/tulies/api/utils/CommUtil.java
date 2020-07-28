@@ -19,7 +19,7 @@ public class CommUtil {
         try{
             String[] sortstr = sorter.split(" ");
 
-            if ("desc".equals(sortstr[1])) {
+            if ("desc".equals(sortstr[1]) || "descend".equals(sortstr[1])) {
                 return Sort.by(Sort.Direction.DESC,sortstr[0]);
             }
             return Sort.by(Sort.Direction.ASC,sortstr[0]);
