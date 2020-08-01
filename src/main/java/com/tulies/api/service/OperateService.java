@@ -1,15 +1,10 @@
 package com.tulies.api.service;
 
 
-import com.tulies.api.beans.dto.UserDTO;
 import com.tulies.api.beans.form.OperateNodeForm;
-import com.tulies.api.beans.form.UserCreateForm;
-import com.tulies.api.beans.form.UserUpdateForm;
 import com.tulies.api.beans.qo.OperateNodeQO;
-import com.tulies.api.beans.qo.UserQO;
 import com.tulies.api.beans.vo.PageVO;
 import com.tulies.api.entity.OperateNode;
-import com.tulies.api.entity.User;
 
 /**
  * @author 王嘉炀

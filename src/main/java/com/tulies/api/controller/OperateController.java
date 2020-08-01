@@ -1,8 +1,6 @@
 package com.tulies.api.controller;
 
-import com.tulies.api.beans.dto.OperateNodeDTO;
-import com.tulies.api.beans.form.OperateNodeCreateForm;
-import com.tulies.api.beans.form.OperateNodeUpdateForm;
+import com.tulies.api.beans.form.OperateNodeForm;
 import com.tulies.api.beans.qo.OperateNodeQO;
 import com.tulies.api.beans.vo.PageVO;
 import com.tulies.api.beans.vo.ResultVO;
@@ -40,8 +38,7 @@ public class OperateController {
     }
 
 
-
-    @PostMapping("/delete")
+    @PostMapping("/node/delete")
     public ResultVO delete(@RequestBody OperateNodeQO operateNodeQO){
         if(operateNodeQO.getId() == null ){
             throw new AppException(ResultEnum.PARAM_ERROR.getCode(),
@@ -61,7 +58,7 @@ public class OperateController {
         return resultVO;
     }
 
-    @PostMapping("/changeStatus")
+    @PostMapping("/node/changeStatus")
     public ResultVO changeStatus(@RequestBody OperateNodeQO operateNodeQO) {
         if(operateNodeQO.getId() == null || StringUtils.isBlank(operateNodeQO.getStatus())){
             log.error("【更改状态】参数不正确，id={}，status={}", operateNodeQO.getId(), operateNodeQO.getStatus());
@@ -77,35 +74,35 @@ public class OperateController {
         return ResultVOUtil.success();
     }
 
-    @PostMapping("/create")
-    public ResultVO create(@RequestBody @Valid OperateNodeCreateForm userForm, BindingResult bindingResult){
+    @PostMapping("/node/create")
+    public ResultVO create(@RequestBody @Valid OperateNodeForm operateNodeForm, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
-            log.error("【创建】参数不正确，userForm={}", userForm);
+            log.error("【创建】参数不正确，operateNodeForm={}", operateNodeForm);
             throw new AppException(ResultEnum.PARAM_ERROR.getCode(),
                 bindingResult.getFieldError().getDefaultMessage());
         }
-        OperateNode create = operateService.create(userForm);
+        OperateNode create = operateService.createNode(operateNodeForm);
         return ResultVOUtil.success(create);
     }
 
-    @PostMapping("/update")
-    public ResultVO update(@RequestBody @Valid OperateNodeUpdateForm userForm, BindingResult bindingResult){
+    @PostMapping("/node/update")
+    public ResultVO update(@RequestBody @Valid OperateNodeForm operateNodeForm, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
-            log.error("【更新】参数不正确，userForm={}", userForm);
+            log.error("【更新】参数不正确，operateNodeForm={}", operateNodeForm);
             throw new AppException(ResultEnum.PARAM_ERROR.getCode(),
                 bindingResult.getFieldError().getDefaultMessage());
         }
-        if(userForm.getId() == null){
+        if(operateNodeForm.getId() == null){
             throw new AppException(ResultEnum.PARAM_ERROR.getCode(), "缺少参数，ID必传");
         }
-        OperateNode update = operateService.update(userForm);
+        OperateNode update = operateService.updateNode(operateNodeForm);
         return ResultVOUtil.success(update);
     }
 //
-    @GetMapping("/info/{id}")
+    @GetMapping("/node/info/{id}")
     public ResultVO info(@PathVariable(name = "id") Integer id){
 
-        OperateNode user = this.operateService.findById(id);
+        OperateNode user = this.operateService.findNodeById(id);
         if(user == null){
             throw new AppException(ResultEnum.DATA_NOT_EXIT.getCode(), ResultEnum.DATA_NOT_EXIT.getMessage());
         }

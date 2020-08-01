@@ -12,18 +12,17 @@ import javax.validation.constraints.NotNull;
 @Data
 public class OperateNodeForm {
     private Integer id;
-    private String nid;
-    @NotBlank
+//    private Integer nid;
+    @NotBlank(message = "name不能为空")
     private String name;
     private String description;
+    private Integer orderNo;
     // 中文路径名称 /name/name/name
-    @NotBlank
-    private String namePath;
+//    private String namePath;
     // nid路径 /nid/nid/nid
-    @NotBlank
-    private String nidPath;
+//    private String nidPath;
     // 父节点ID
-    @NotBlank
-    private String parentNid;
-    private Integer status;
+//    @NotNull(message = "parentNid不能为空")
+    private Integer parentNid;
+//    private Integer status;
 }

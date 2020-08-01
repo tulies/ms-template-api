@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum IdKeyEnum {
 
-    ACT_ID("actId"),
+    OPERATE_NODE_NID("OPERATE_NODE_NID"),
     ;
 
     private String key;

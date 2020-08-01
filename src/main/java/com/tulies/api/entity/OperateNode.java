@@ -20,18 +20,18 @@ public class OperateNode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String nid;
+    private Integer nid;
     private String name;
     private String description;
     // 序号，用户节点排序
-    private String orderNo;
+    private Integer orderNo;
     // 中文路径名称 /name/name/name
     private String namePath;
     // nid路径 /nid/nid/nid
     private String nidPath;
     private Integer status;
     // 父节点ID
-    private String parentNid;
+    private Integer parentNid;
     private Date updateTime;
     private Date createTime;
 }

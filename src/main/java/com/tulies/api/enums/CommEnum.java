@@ -20,9 +20,6 @@ public enum CommEnum {
     /***审核****/
     CHECK_POST(0,"先审后发"), //先审后发
     POST_CHECK(1,"先发后审"), //先发后审
-
-
-
     ;
     private Integer code;
     private String desc;

@@ -6,6 +6,7 @@ import com.tulies.api.enums.ResultEnum;
 import com.tulies.api.exception.AppException;
 import com.tulies.api.utils.ResultVOUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,7 +28,7 @@ public class ExceptionHandle {
     @ResponseBody
     @ExceptionHandler(value = NoHandlerFoundException.class)
     public ResultVO handleResourceNotFoundException(NoHandlerFoundException e) {
-        e.printStackTrace();
+//        e.printStackTrace();
         return ResultVOUtil.error(ResultEnum.NOT_EXIST.getCode(),ResultEnum.NOT_EXIST.getMessage());
     }
 
@@ -35,7 +36,7 @@ public class ExceptionHandle {
     @ExceptionHandler(value = AppException.class)
     @ResponseBody
     public ResultVO handlerSellerException(AppException e) {
-//        e.printStackTrace();
+        e.printStackTrace();
         return ResultVOUtil.error(e.getCode(), e.getMessage());
     }
 
@@ -50,12 +51,17 @@ public class ExceptionHandle {
     /**
      * 全局异常返回
      * @param e
-     * @return
+     * @return DataIntegrityViolationException
      */
     @ResponseBody
     @ExceptionHandler(value = Exception.class)
     public ResultVO globalExceptionHandler(Exception e){
         e.printStackTrace();
+        if(e instanceof DataIntegrityViolationException) {
+            //返回成功
+            return ResultVOUtil.error(ResultEnum.SQL_EXCEPTION);
+        }
         return ResultVOUtil.error(ResultEnum.SERVER_ERROR.getCode(),ResultEnum.SERVER_ERROR.getMessage());
     }
 }
+

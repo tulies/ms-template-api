@@ -8,12 +8,15 @@ import com.tulies.api.config.RedisConstant;
 import com.tulies.api.entity.OperateNode;
 import com.tulies.api.entity.User;
 import com.tulies.api.enums.CommEnum;
+import com.tulies.api.enums.IdKeyEnum;
 import com.tulies.api.enums.ResultEnum;
 import com.tulies.api.exception.AppException;
 import com.tulies.api.repository.OperateNodeRepository;
+import com.tulies.api.service.GeneratorService;
 import com.tulies.api.service.OperateService;
 import com.tulies.api.utils.*;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.implementation.bytecode.Throw;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -41,6 +44,8 @@ public class OperateServiceImpl implements OperateService {
 
     @Autowired
     private OperateNodeRepository operateNodeRepository;
+    @Autowired
+    private GeneratorService generatorService;
 
     @Override
     public PageVO<OperateNode> findNodeList(Integer pageNum, Integer pageSize, OperateNodeQO operateNodeQO, String sorter) {
@@ -55,25 +60,25 @@ public class OperateServiceImpl implements OperateService {
             List<Predicate> predicateList = new ArrayList<>();
             //根据id 查询
             if (operateNodeQO.getId() != null) {
-                predicateList.add(criteriaBuilder.equal(root.get("id").as(Long.class), operateNodeQO.getId()));
+                predicateList.add(criteriaBuilder.equal(root.get("id").as(Integer.class), operateNodeQO.getId()));
             }
 
             //根据nid 查询
             if (operateNodeQO.getNid() != null) {
-                predicateList.add(criteriaBuilder.equal(root.get("nid").as(Long.class), operateNodeQO.getNid()));
+                predicateList.add(criteriaBuilder.equal(root.get("nid").as(Integer.class), operateNodeQO.getNid()));
             }
             //根据parentNid 查询
             if (operateNodeQO.getParentNid() != null) {
-                predicateList.add(criteriaBuilder.equal(root.get("parentNid").as(Long.class), operateNodeQO.getParentNid()));
+                predicateList.add(criteriaBuilder.equal(root.get("parentNid").as(Integer.class), operateNodeQO.getParentNid()));
             }
 
-            //根据username 模糊匹配
+            //根据name 模糊匹配
             if (StringUtils.isNotBlank(operateNodeQO.getName())) {
-                predicateList.add(criteriaBuilder.equal(root.get("name").as(String.class), operateNodeQO.getName()));
+                predicateList.add(criteriaBuilder.like(root.get("name").as(String.class), "%"+operateNodeQO.getName()+"%"));
             }
-            //根据nuckname 模糊匹配
+            //根据namePath 模糊匹配
             if (StringUtils.isNotBlank(operateNodeQO.getNamePath())) {
-                predicateList.add(criteriaBuilder.like(root.get("alias").as(String.class), "%"+ operateNodeQO.getNamePath()+"%"));
+                predicateList.add(criteriaBuilder.like(root.get("namePath").as(String.class), "%"+ operateNodeQO.getNamePath()+"%"));
             }
 
             // 根据状态查询
@@ -115,6 +120,11 @@ public class OperateServiceImpl implements OperateService {
         }
         return record.get();
     }
+
+    public OperateNode findNodeByNid(Integer nid) {
+        OperateNode record = operateNodeRepository.findByNid(nid);
+        return record;
+    }
     /**
      * 根据id删除
      * @param id
@@ -135,16 +145,27 @@ public class OperateServiceImpl implements OperateService {
     @Override
     @Transactional
     public OperateNode createNode(OperateNodeForm operateNodeForm) {
+        if(operateNodeForm.getParentNid() == null){
+            throw new AppException(ResultEnum.DATA_NOT_EXIT.getCode(), "父节点不存在");
+        }
         // 根据parentId查询parentid是多少
+        OperateNode parentNode = this.findNodeByNid(operateNodeForm.getParentNid());
+        if(parentNode == null){
+            throw new AppException(ResultEnum.DATA_NOT_EXIT.getCode(), "父节点不存在");
+        }
 
         OperateNode operateNode = new OperateNode();
         BeanUtil.copyProperties(operateNodeForm, operateNode);
-        operateNode.setNid("1820");
-        operateNode.setNamePath("/21/2121/");
+
+        Integer nid = this.generatorService.autoGeneratorValue(IdKeyEnum.OPERATE_NODE_NID.getKey());
+
+        operateNode.setNid(nid);
+        operateNode.setNamePath(parentNode.getNamePath()+"/"+operateNode.getName());
+        operateNode.setNidPath(parentNode.getNidPath()+"/"+operateNode.getNid());
+        operateNode.setStatus(CommEnum.STATUS_ONLINE.getCode());
         Date nowDate = new Date();
         operateNode.setCreateTime(nowDate);
         operateNode.setUpdateTime(nowDate);
-        operateNode.setStatus(CommEnum.STATUS_NEW_BUILD.getCode());
         OperateNode result = operateNodeRepository.save(operateNode);
         return result;
     }
@@ -154,11 +175,29 @@ public class OperateServiceImpl implements OperateService {
     public OperateNode updateNode(OperateNodeForm operateNodeForm) {
         // 先根据id查到对象信息
         OperateNode operateNode = this.findNodeById(operateNodeForm.getId());
+        if(operateNode == null){
+            throw new AppException(ResultEnum.DATA_NOT_EXIT);
+        }
+        // 判断一下是否改过name，如果改过的话 需要更新所有子节点的路径
+        boolean nameDiff = operateNode.getName().equals(operateNodeForm.getName());
+        String namePath = operateNode.getNamePath();
+        String newNamePath = namePath;
+        if(!nameDiff){
+            String[] names = namePath.split("/");
+            names[names.length-1] = operateNodeForm.getName();
+            newNamePath = StringUtils.join(names,'/');
+            operateNode.setNamePath(newNamePath);
+        }
         // 覆盖属性
         BeanUtil.copyProperties(operateNodeForm, operateNode);
         Date nowDate = new Date();
         operateNode.setUpdateTime(nowDate);
-        OperateNode result = operateNodeRepository.save(operateNode);
+        OperateNode result = this.operateNodeRepository.save(operateNode);
+        // 如果名称做了修改，则去批量更新下面的子节点。
+        // 查询根据nidName查询，然后更新namePath
+        if(!nameDiff){
+            this.operateNodeRepository.updateChildNodeNamePath(namePath+'/',newNamePath+'/');
+        }
         return result;
     }
 }
