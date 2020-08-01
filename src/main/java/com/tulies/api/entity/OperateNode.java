@@ -23,6 +23,8 @@ public class OperateNode {
     private Integer nid;
     private String name;
     private String description;
+    // 是否为叶子节点
+    private Integer leaf;
     // 序号，用户节点排序
     private Integer orderNo;
     // 中文路径名称 /name/name/name

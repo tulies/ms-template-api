@@ -16,8 +16,6 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <weixin-java-miniapp.version>3.8.0</weixin-java-miniapp.version>
-        <weixin-java-pay.version>3.8.0</weixin-java-pay.version>
     </properties>
 
     <dependencies>

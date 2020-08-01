@@ -49,7 +49,12 @@ public class OperateServiceImpl implements OperateService {
 
     @Override
     public PageVO<OperateNode> findNodeList(Integer pageNum, Integer pageSize, OperateNodeQO operateNodeQO, String sorter) {
-        Sort sort = Sort.by(Sort.Direction.DESC,"id");
+//        Sort sort = Sort.by(Sort.Direction.DESC,"id");
+
+        List<Sort.Order> orders = new ArrayList<Sort.Order>();
+        orders.add(new Sort.Order(Sort.Direction.DESC,"orderNo"));
+        orders.add(new Sort.Order(Sort.Direction.DESC,"id"));
+        Sort sort = Sort.by(orders);
         if(StringUtils.isNotBlank(sorter)){
             sort = CommUtil.formatSorter(sorter);
         }

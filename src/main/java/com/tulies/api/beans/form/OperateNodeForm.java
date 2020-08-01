@@ -24,5 +24,6 @@ public class OperateNodeForm {
     // 父节点ID
 //    @NotNull(message = "parentNid不能为空")
     private Integer parentNid;
+    private Integer leaf;
 //    private Integer status;
 }
