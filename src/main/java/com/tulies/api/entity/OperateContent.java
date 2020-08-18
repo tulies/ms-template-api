@@ -24,16 +24,22 @@ public class OperateContent {
     // 内容id
     private String cid;
     // 标题
-    private String title;
+    private String name;
     // 描述
     private String description;
     // 状态
     private Integer status;
 
-    // 绑定的SchemaSid
-    private String sid;
+    // 数据路径
+    private String dataPath;
     // 所属的节点id
-    private String nid;
+    private Integer nid;
+    private String idPath;
+
+    // json模板id
+    private Integer tid;
+    private String tplPath;
+
     private Date updateTime;
     private Date createTime;
 
