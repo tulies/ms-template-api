@@ -1,16 +1,19 @@
 package com.tulies.api.service.impl;
 
 import com.tulies.api.beans.form.OperateNodeForm;
+import com.tulies.api.beans.qo.OperateContentQO;
 import com.tulies.api.beans.qo.OperateNodeQO;
 import com.tulies.api.beans.qo.UserQO;
 import com.tulies.api.beans.vo.PageVO;
 import com.tulies.api.config.RedisConstant;
+import com.tulies.api.entity.OperateContent;
 import com.tulies.api.entity.OperateNode;
 import com.tulies.api.entity.User;
 import com.tulies.api.enums.CommEnum;
 import com.tulies.api.enums.IdKeyEnum;
 import com.tulies.api.enums.ResultEnum;
 import com.tulies.api.exception.AppException;
+import com.tulies.api.repository.OperateContentRepository;
 import com.tulies.api.repository.OperateNodeRepository;
 import com.tulies.api.service.GeneratorService;
 import com.tulies.api.service.OperateService;
@@ -45,8 +48,71 @@ public class OperateServiceImpl implements OperateService {
     @Autowired
     private OperateNodeRepository operateNodeRepository;
     @Autowired
+    private OperateContentRepository operateContentRepository;
+    @Autowired
     private GeneratorService generatorService;
 
+    /******** 内容的操作 **********/
+    @Override
+    public PageVO<OperateContent> findContentList(Integer pageNum, Integer pageSize, OperateContentQO operateContentQO, String sorter) {
+
+        List<Sort.Order> orders = new ArrayList<Sort.Order>();
+        orders.add(new Sort.Order(Sort.Direction.DESC,"id"));
+        Sort sort = Sort.by(orders);
+        if(StringUtils.isNotBlank(sorter)){
+            sort = CommUtil.formatSorter(sorter);
+        }
+        Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
+
+        Specification<OperateContent> specification = (Specification<OperateContent>) (root, criteriaQuery, criteriaBuilder) -> {
+
+            List<Predicate> predicateList = new ArrayList<>();
+            //根据id 查询
+            if (operateContentQO.getId() != null) {
+                predicateList.add(criteriaBuilder.equal(root.get("id").as(Integer.class), operateContentQO.getId()));
+            }
+
+            //根据cid 查询
+            if (StringUtils.isNotBlank(operateContentQO.getCid())) {
+                predicateList.add(criteriaBuilder.equal(root.get("cid").as(Integer.class), operateContentQO.getCid()));
+            }
+
+            //根据name 模糊匹配
+            if (StringUtils.isNotBlank(operateContentQO.getName())) {
+                predicateList.add(criteriaBuilder.like(root.get("name").as(String.class), "%"+operateContentQO.getName()+"%"));
+            }
+            //根据tid匹配
+            if (StringUtils.isNotBlank(operateContentQO.getTid())) {
+                predicateList.add(criteriaBuilder.equal(root.get("tid").as(Integer.class), operateContentQO.getTid()));
+            }
+
+            // 根据状态查询
+            if (StringUtils.isNotBlank(operateContentQO.getStatus())) {
+                String[] statusArr= operateContentQO.getStatus().split(",");
+                if(statusArr.length > 1){
+                    CriteriaBuilder.In<Integer> in = criteriaBuilder.in(root.get("status"));
+                    for (int i = 0; i < statusArr.length; i++){
+                        in.value(Integer.valueOf(statusArr[i]));
+                    }
+                    predicateList.add(in);
+                }else{
+                    predicateList.add(criteriaBuilder.equal(root.get("status").as(Integer.class), operateContentQO.getStatus()));
+                }
+            }else{
+                predicateList.add(criteriaBuilder.notEqual(root.get("status").as(Integer.class), -1));
+            }
+
+            Predicate[] pre = new Predicate[predicateList.size()];
+            criteriaQuery.where(predicateList.toArray(pre));
+            return criteriaBuilder.and(predicateList.toArray(pre));
+        };
+
+        Page<OperateContent> page = operateContentRepository.findAll(specification,pageable);
+        PageVO<OperateContent> pageVO = PageVO.convert(page);
+        return pageVO;
+    }
+
+    /********  节点的操作 *********/
     @Override
     public PageVO<OperateNode> findNodeList(Integer pageNum, Integer pageSize, OperateNodeQO operateNodeQO, String sorter) {
 //        Sort sort = Sort.by(Sort.Direction.DESC,"id");
@@ -60,7 +126,7 @@ public class OperateServiceImpl implements OperateService {
         }
         Pageable pageable = PageRequest.of(pageNum, pageSize, sort);
 
-        Specification<User> specification = (Specification<User>) (root, criteriaQuery, criteriaBuilder) -> {
+        Specification<OperateNode> specification = (Specification<OperateNode>) (root, criteriaQuery, criteriaBuilder) -> {
 
             List<Predicate> predicateList = new ArrayList<>();
             //根据id 查询
@@ -113,7 +179,7 @@ public class OperateServiceImpl implements OperateService {
     }
 
     /**
-     * 根据id查询文章
+     * 根据id查询
      * @param id
      * @return
      */
@@ -142,7 +208,7 @@ public class OperateServiceImpl implements OperateService {
 
     @Override
     @Transactional
-    public void changeStatus(Integer id, Integer status) {
+    public void changeNodeStatus(Integer id, Integer status) {
         operateNodeRepository.changeStatus(id, status);
     }
 
@@ -205,4 +271,11 @@ public class OperateServiceImpl implements OperateService {
         }
         return result;
     }
+
+
+
+
+
+
+
 }

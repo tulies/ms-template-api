@@ -1,9 +1,11 @@
 package com.tulies.api.controller;
 
 import com.tulies.api.beans.form.OperateNodeForm;
+import com.tulies.api.beans.qo.OperateContentQO;
 import com.tulies.api.beans.qo.OperateNodeQO;
 import com.tulies.api.beans.vo.PageVO;
 import com.tulies.api.beans.vo.ResultVO;
+import com.tulies.api.entity.OperateContent;
 import com.tulies.api.entity.OperateNode;
 import com.tulies.api.enums.ResultEnum;
 import com.tulies.api.exception.AppException;
@@ -28,8 +30,24 @@ public class OperateController {
 
     @Autowired
     private OperateService operateService;
+
+    /**** **********************************
+     *    CONTENT CONTENT CONTENT CONTENT CONTENT
+     **************************************/
+    @GetMapping("/content/list")
+    public ResultVO listContent(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+                         @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize,
+                         OperateContentQO operateContentQO,
+                         String sorter){
+        PageVO<OperateContent> pageVO = this.operateService.findContentList(pageNum-1 , pageSize, operateContentQO, sorter);
+        return ResultVOUtil.success(pageVO);
+    }
+
+    /**** **********************************
+     *    NODE NODE NODE NODE NODE
+     **************************************/
     @GetMapping("/node/list")
-    public ResultVO list(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
+    public ResultVO listNode(@RequestParam(value = "pageNum", defaultValue = "1") Integer pageNum,
                          @RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize,
                          OperateNodeQO operateNodeQO,
                          String sorter){
@@ -39,7 +57,7 @@ public class OperateController {
 
 
     @PostMapping("/node/delete")
-    public ResultVO delete(@RequestBody OperateNodeQO operateNodeQO){
+    public ResultVO deleteNode(@RequestBody OperateNodeQO operateNodeQO){
         if(operateNodeQO.getId() == null ){
             throw new AppException(ResultEnum.PARAM_ERROR.getCode(),
                     ResultEnum.PARAM_ERROR.getMessage()+",缺少id参数");
@@ -59,7 +77,7 @@ public class OperateController {
     }
 
     @PostMapping("/node/changeStatus")
-    public ResultVO changeStatus(@RequestBody OperateNodeQO operateNodeQO) {
+    public ResultVO changeNodeStatus(@RequestBody OperateNodeQO operateNodeQO) {
         if(operateNodeQO.getId() == null || StringUtils.isBlank(operateNodeQO.getStatus())){
             log.error("【更改状态】参数不正确，id={}，status={}", operateNodeQO.getId(), operateNodeQO.getStatus());
             throw new AppException(ResultEnum.PARAM_ERROR.getCode(),
@@ -70,12 +88,12 @@ public class OperateController {
         if (user == null) {
             throw new AppException(ResultEnum.DATA_NOT_EXIT);
         }
-        operateService.changeStatus(operateNodeQO.getId(), Integer.valueOf(operateNodeQO.getStatus()));
+        operateService.changeNodeStatus(operateNodeQO.getId(), Integer.valueOf(operateNodeQO.getStatus()));
         return ResultVOUtil.success();
     }
 
     @PostMapping("/node/create")
-    public ResultVO create(@RequestBody @Valid OperateNodeForm operateNodeForm, BindingResult bindingResult){
+    public ResultVO createNode(@RequestBody @Valid OperateNodeForm operateNodeForm, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
             log.error("【创建】参数不正确，operateNodeForm={}", operateNodeForm);
             throw new AppException(ResultEnum.PARAM_ERROR.getCode(),
@@ -86,7 +104,7 @@ public class OperateController {
     }
 
     @PostMapping("/node/update")
-    public ResultVO update(@RequestBody @Valid OperateNodeForm operateNodeForm, BindingResult bindingResult){
+    public ResultVO updateNode(@RequestBody @Valid OperateNodeForm operateNodeForm, BindingResult bindingResult){
         if (bindingResult.hasErrors()) {
             log.error("【更新】参数不正确，operateNodeForm={}", operateNodeForm);
             throw new AppException(ResultEnum.PARAM_ERROR.getCode(),
@@ -100,7 +118,7 @@ public class OperateController {
     }
 //
     @GetMapping("/node/info/{id}")
-    public ResultVO info(@PathVariable(name = "id") Integer id){
+    public ResultVO infoNode(@PathVariable(name = "id") Integer id){
 
         OperateNode user = this.operateService.findNodeById(id);
         if(user == null){

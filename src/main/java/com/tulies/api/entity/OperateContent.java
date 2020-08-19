@@ -37,7 +37,7 @@ public class OperateContent {
     private String idPath;
 
     // json模板id
-    private Integer tid;
+    private String tid;
     private String tplPath;
 
     private Date updateTime;
